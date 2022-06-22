@@ -80,6 +80,36 @@ def plot_contour(obj_name, axs, cutout_345s, cutout_33s, levs, vmins, vmaxs, sav
             plt.savefig(os.path.join(direc, f'{obj_name}_contours.pdf'))
             plt.close()
 
+def plot_disk(save_fig):
+    tested_objs = ['HH270MMS2','HOPS-56',  'HOPS-65', 'HOPS-124', 'HOPS-140', 'HOPS-157', 'HOPS-163']
+
+    f,axss = plt.subplots(2, 4,figsize=(16,8))
+    f.suptitle('Disk Image (345GHz)',fontsize = 16)
+    axes = [axss[0,0],axss[0,1],axss[0,2],axss[0,3],axss[1,0],axss[1,1],axss[1,2]]
+    # x = [1,2,3]
+    # y = [2,3,4]
+    # axes[0].plot(x,y)
+    axss[1,3].axis("off")
+    for obj,axs in zip(tested_objs,axes):
+        print(axs)
+        size_345 = [target_pixel_sizes[obj]]
+        x_345 = [x_345s[obj]]
+        y_345 = [y_345s[obj]]
+        v_min = v_mins[obj]
+        v_max= v_maxs[obj]
+        filename_345 = [f'data/{obj}_345GHz.fits']
+        filename_33 = [f'data/{obj}_{int(VLA_freq[obj])}GHz_robust2.0.fits']
+
+
+        cutout_345, cutout_33 = find_cutout(filename_345s = filename_345, filename_33s = filename_33, size_345s=size_345, x_345s=x_345, y_345s=y_345)
+        axs.imshow(cutout_345[0].data, vmin=v_min, vmax=v_max)
+        axs.set_title(obj)
+    if save_fig == True:
+        direc = 'pictures_disks'
+        os.makedirs(direc, exist_ok=True)
+        plt.savefig(os.path.join(direc, f'Disk_Image.pdf'))
+        plt.close()
+
 # parameters in dictionaries:
 VLA_freq = {'HH270MMS2':44 , 'HOPS-56':33 ,  'HOPS-65':15 , 'HOPS-124':44 , 'HOPS-140':33 , 'HOPS-157':33 , 'HOPS-163':33  }
 
@@ -117,6 +147,8 @@ def main():
                                         x_345s=x_345, y_345s=y_345)
     axs = gen_axis(cutout_345)
     plot_contour(tested_obj, axs, cutout_345, cutout_33, levs=level, vmins=v_min, vmaxs=v_max, save_fig=True)
+
+    plot_disk(True)
 
 if __name__ == '__main__':
     main()
