@@ -21,7 +21,7 @@ def set_axis_style(ax, labels):
     ax.set_xlim(0.25, len(labels) + 0.75)
     ax.set_xlabel('Sample name')
 
-    
+
 def plot_violin(mass_1y_e056, mass_1y_en01, mass_05y_e056, mass_05y_en01, name):
     fig, ((ax1,ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(15,10), sharey=True)
     ax1.set_title(f'{name}_0.56exp_1byr')
