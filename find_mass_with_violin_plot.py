@@ -14,36 +14,37 @@ from evol_track_interpolation import pms_get_mstar
 
 
 def set_axis_style(ax, labels):
-    ax.xaxis.set_tick_params(direction='out')
     ax.xaxis.set_ticks_position('bottom')
     ax.set_xticks(np.arange(1, len(labels) + 1))
-    ax.set_xticklabels(labels)
+    ax.set_xticklabels(labels, rotation=45)
     ax.set_xlim(0.25, len(labels) + 0.75)
-    ax.set_xlabel('Sample name')
+    ax.set_xlabel('Evolutionary Tracks', fontsize=16)
 
 
 def plot_violin(mass_1y_e056, mass_1y_en01, mass_05y_e056, mass_05y_en01, name):
     fig, ((ax1,ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(15,10), sharey=True)
-    ax1.set_title(f'{name}_0.56exp_1byr')
-    ax1.set_ylabel('mass/M_sun')
+    ax1.set_title(f'{name}'+ r", $L_{bol} \propto \nu^{0.56}$" + r", 1 $Myr$", fontsize=20)
+    ax1.set_ylabel('$M_*$ (M$_{\odot}$)', fontsize=16)
     ax1.violinplot(mass_1y_e056)
-    ax2.set_title(f'{name}_n0.1exp_1byr')
-    ax2.set_ylabel('mass/M_sun')
+    ax2.set_title(f'{name}'+ r", $L_{bol} \propto \nu^{-0.1}$" + r", 1 $Myr$", fontsize=20)
+    ax2.set_ylabel('$M_*$ (M$_{\odot}$)', fontsize=16)
     ax2.violinplot(mass_1y_en01)
-    ax3.set_title(f'{name}_0.56exp_0.5byr')
-    ax3.set_ylabel('mass/M_sun')
+    ax3.set_title(f'{name}'+ r", $L_{bol} \propto \nu^{0.56}$" + r", 0.5 $Myr$", fontsize=20)
+    ax3.set_ylabel('$M_*$ (M$_{\odot}$)', fontsize=16)
     ax3.violinplot(mass_05y_e056)
-    ax4.set_title(f'{name}_n0.1exp_0.5byr')
-    ax4.set_ylabel('mass/M_sun')
+    ax4.set_title(f'{name}'+ r", $L_{bol} \propto \nu^{-0.1}$" + r", 0.5 $Myr$", fontsize=20)
+    ax4.set_ylabel('$M_*$ (M$_{\odot}$)', fontsize=16)
     ax4.violinplot(mass_05y_en01)
 
-    labels = ["A", "B", "C","D","E","F","G","H"]
+    labels = ["BHAC15", "Siess2000", "Dotter2008", "Tognelli2011", "Feiden2016", "Feiden2016mag", "Chen2014",
+              "Bressan2012"]
+
     for ax in [ax1, ax2, ax3, ax4]:
         set_axis_style(ax, labels)
     fig.tight_layout()
     direc = 'pictures_violin'
     os.makedirs(direc, exist_ok=True)
-    plt.savefig(os.path.join(direc, f'{name}.png'))
+    plt.savefig(os.path.join(direc, f'{name}_violin_plot.pdf'))
     plt.close()
 
 def main():
