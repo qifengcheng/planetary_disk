@@ -47,6 +47,55 @@ def plot_violin(mass_1y_e056, mass_1y_en01, mass_05y_e056, mass_05y_en01, name):
     plt.savefig(os.path.join(direc, f'{name}_violin_plot.pdf'))
     plt.close()
 
+
+# plot all sources under the same track and conditions
+def plot_violin_same_track(mass_all_sources, trackname, condition, labels, color=False):
+    fig, axs = plt.subplots(1, 1, figsize=(10, 5))
+    axs.violinplot(mass_all_sources)
+    axs.set_ylabel('$M_*$ (M$_{\odot}$)', fontsize=16)
+
+    if condition == 'prop056_1myr':
+        plt.title(f'{trackname}' + r", $L_{bol} \propto \nu^{0.56}$" + r", 1 $Myr$", fontsize=20)
+    elif condition == 'prop056_05myr':
+        plt.title(f'{trackname}' + r", $L_{bol} \propto \nu^{0.56}$" + r", 0.5 $Myr$", fontsize=20)
+    elif condition == 'propn1_1myr':
+        plt.title(f'{trackname}' + r", $L_{bol} \propto \nu^{-0.1}$" + r", 1 $Myr$", fontsize=20)
+    elif condition == 'propn1_05myr':
+        plt.title(f'{trackname}' + r", $L_{bol} \propto \nu^{-0.1}$" + r", 0.5 $Myr$", fontsize=20)
+    else:
+        raise Exception("Illegal filename")
+    set_axis_style(axs, labels)
+    axs.set_xlabel('Sources', fontsize=16)
+    direc = 'pictures_violin'
+    os.makedirs(direc, exist_ok=True)
+    plt.savefig(os.path.join(direc, f'{trackname}_{condition}_violin_plot.pdf'), bbox_inches='tight')
+    plt.close()
+
+
+def read_plot_violin_same_track(objs, trackname='BHAC15'):
+    # read mass data from previous calculation
+    direc = './data_result'
+    conditions = ['prop056_1myr', 'prop056_05myr', 'propn1_1myr', 'propn1_05myr']
+
+    for condition in conditions:
+        mass_all_sources_same_track = []
+        labels = []
+        for obj in objs:
+            df = pd.read_csv(os.path.join(direc, f'{obj["name"]}_mass_tabel_{condition}.csv'))
+            mass_all_sources_same_track.append(df[trackname])
+            labels.append(obj['name'])
+        plot_violin_same_track(mass_all_sources_same_track, trackname, condition, labels)
+
+
+def save_mass_distribution_tabel(data, file_name, direc):
+    trac = ["BHAC15", "Siess2000", "Dotter2008", "Tognelli2011", "Feiden2016", "Feiden2016mag", "Chen2014",
+            "Bressan2012"]
+
+    mass_tabel = pd.DataFrame({trac[i]: data[i] for i in range(8)})
+    os.makedirs(direc, exist_ok=True)
+    mass_tabel.to_csv(os.path.join(direc, f'{file_name}.csv'))
+    return mass_tabel
+
 def main():
 
     obj_56 = {'name': 'HOPS-56', 'frequency': 33.0e9, 'flux':5.69e-5}
@@ -65,8 +114,9 @@ def main():
     obj_157_3RMS = {'name': 'HOPS-157', 'frequency': 33.0e9, 'flux':9.49e-6*3}
 
 
-    objs = [obj_56, obj_56_3RMS, obj_65, obj_65_3RMS, obj_124, obj_56_3RMS, obj_140, obj_140_3RMS, obj_157_a, obj_157_b, obj_157_3RMS, obj_163_3RMS, obj_270_3RMS]
-
+    objs = [obj_56, obj_56_3RMS, obj_65, obj_65_3RMS, obj_124, obj_124_3RMS, obj_56_3RMS, obj_140, obj_140_3RMS, obj_157_a, obj_157_b, obj_157_3RMS, obj_163_3RMS, obj_270_3RMS]
+    tracks = ["BHAC15", "Siess2000", "Dotter2008", "Tognelli2011", "Feiden2016", "Feiden2016mag", "Chen2014",
+              "Bressan2012"]
 
     for obj in objs:
         print(obj)
@@ -93,6 +143,16 @@ def main():
             mass_al_trac_05yn[trac.index(track)] = pms_get_mstar(age = 0.5e6, luminosity= L_bol_n01, tracks=track)
 
         plot_violin(mass_al_trac_1y, mass_al_trac_1yn, mass_al_trac_05y, mass_al_trac_05yn, obj['name'])
+
+        # create pandas dataframe for masses and save to csv files
+        save_mass_distribution_tabel(mass_al_trac_1y, f'{obj["name"]}_mass_tabel_prop056_1myr', 'data_result')
+        save_mass_distribution_tabel(mass_al_trac_1yn, f'{obj["name"]}_mass_tabel_propn1_1myr', 'data_result')
+        save_mass_distribution_tabel(mass_al_trac_05y, f'{obj["name"]}_mass_tabel_prop056_05myr', 'data_result')
+        save_mass_distribution_tabel(mass_al_trac_05yn, f'{obj["name"]}_mass_tabel_propn1_05myr', 'data_result')
+
+    # read mass distribution and plot mass distribution of all sources under the same track and conditions
+    for track in tracks:
+        read_plot_violin_same_track(objs, track)
 
 if __name__ == '__main__':
     main()
